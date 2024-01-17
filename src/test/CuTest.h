@@ -84,7 +84,7 @@ void CuTestRun(CuTest* tc);
 #define SUITE_ADD_TEST(SUITE,TEST)	CuSuiteAdd(SUITE, CuTestNew(_T(#TEST), TEST))
 
 /*
- * Macros used to make porting of Java Lucene tests easier. Assumes CuTest exists in the scope as tc
+ * Macros used to make porting of Java Lucene tests easier. Assumes CuTest exists in the scope as tc, kkk
  */
 #define assertTrue(CND)                                 CuAssertTrue(tc, CND)
 #define assertTrueMsg(MSG, CND)                         CuAssertTrue(tc, CND, MSG)
