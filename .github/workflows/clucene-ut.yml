@@ -57,6 +57,29 @@ jobs:
               'openjdk-11-jdk'
               'openjdk-11-jdk-headless'
               'maven'
+          - name: macOS
+            os: macos-12
+            packages: >-
+              'automake'
+              'autoconf'
+              'libtool'
+              'pkg-config'
+              'texinfo'
+              'coreutils'
+              'gnu-getopt'
+              'python@3'
+              'cmake'
+              'ninja'
+              'ccache'
+              'bison'
+              'byacc'
+              'gettext'
+              'wget'
+              'pcre'
+              'openjdk@11'
+              'maven'
+              'node'
+              'llvm@16'
     
     name: Build (${{ matrix.config.name }})
     runs-on: ${{ matrix.config.os }}
@@ -65,6 +88,23 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: "Prepare for ${{ matrix.config.os }}"
+        run: |
+          if [[ "${{ matrix.config.name }}" == 'macOS' ]]; then
+            brew install ${{ matrix.config.packages }}
+          else
+            export DEFAULT_DIR='/opt/doris'
+            export PATH="${DEFAULT_DIR}/ldb-toolchain/bin:${PATH}"
+
+            sudo apt update
+            sudo DEBIAN_FRONTEND=noninteractive apt install --yes ${{ matrix.config.packages }}
+
+            mkdir -p "${DEFAULT_DIR}"
+            wget https://github.com/amosbird/ldb_toolchain_gen/releases/download/v0.18/ldb_toolchain_gen.sh \
+              -q -O /tmp/ldb_toolchain_gen.sh
+            bash /tmp/ldb_toolchain_gen.sh "${DEFAULT_DIR}/ldb-toolchain"
+          fi
 
       - name: "run ut"
         run: |
