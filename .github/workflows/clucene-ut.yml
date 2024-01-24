@@ -73,10 +73,10 @@ jobs:
         cd bin/
         ./cl_test
 
-      # - name: "Setup tmate session to debug"
-      #   if: ${{ failure() }}
-      #   uses: mxschmitt/action-tmate@v3
-      #   timeout-minutes: 30
+    # - name: "Setup tmate session to debug"
+    #   if: ${{ failure() }}
+    #   uses: mxschmitt/action-tmate@v3
+    #   timeout-minutes: 30
 
   build_macos:
     name: Build (MacOS)
@@ -114,8 +114,15 @@ jobs:
     - name: "Run"
       run: |
         set -x
+        export CC="$(brew --prefix)/opt/llvm@16/bin/clang"
+        export CXX="$(brew --prefix)/opt/llvm@16/bin/clang++"
         mkdir build && cd build
         cmake ../
         make cl_test
         cd bin/
         ./cl_test
+
+    - name: "Setup tmate session to debug"
+      if: ${{ failure() }}
+      uses: mxschmitt/action-tmate@v3
+      timeout-minutes: 30
