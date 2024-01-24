@@ -14,6 +14,7 @@
 static int verbose = 0;
 static int messyPrinting = 0;
 
+// test
 void CuInit(int argc, char *argv[])
 {
 	int i;
