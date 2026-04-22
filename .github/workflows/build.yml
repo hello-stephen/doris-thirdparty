@@ -19,6 +19,11 @@ name: Build
 
 on:
   workflow_dispatch:
+    inputs:
+      force_build:
+        description: "Force run build job when manually triggered"
+        required: false
+        default: "true"
   schedule:
     - cron: '*/30 * * * *'
 
@@ -92,7 +97,7 @@ jobs:
   build:
     name: Build
     needs: prerelease
-    if: needs.prerelease.outputs.should_release == 'true'
+    if: needs.prerelease.outputs.should_release == 'true' || (github.event_name == 'workflow_dispatch' && github.event.inputs.force_build == 'true')
     strategy:
       matrix:
         config:
@@ -398,7 +403,7 @@ jobs:
   success:
     name: Success
     needs: [prerelease, build, update-docker]
-    if: needs.prerelease.outputs.should_release == 'true'
+    if: needs.prerelease.outputs.should_release == 'true' || (github.event_name == 'workflow_dispatch' && github.event.inputs.force_build == 'true')
     runs-on: ubuntu-latest
     env:
       GH_REPO: ${{ github.repository }}
