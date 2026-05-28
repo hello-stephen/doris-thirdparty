@@ -285,7 +285,11 @@ jobs:
           arch="$(uname -m)"
           rm -rf "doris-thirdparty-prebuilt-${kernel}-${arch}.tar.xz"
           tar -cf - installed | xz -z -T0 - >"doris-thirdparty-prebuilt-${kernel}-${arch}.tar.xz"
-          gh release upload --clobber "${tag_name}" "doris-thirdparty-prebuilt-${kernel}-${arch}.tar.xz"
+          # Delete existing asset first to avoid gh CLI --clobber race-condition bug
+          # (gh release upload --clobber sometimes returns "release not found" exit 1
+          # when deleting an existing asset, even though the upload itself succeeds)
+          gh release delete-asset "${tag_name}" "doris-thirdparty-prebuilt-${kernel}-${arch}.tar.xz" 2>/dev/null || true
+          gh release upload "${tag_name}" "doris-thirdparty-prebuilt-${kernel}-${arch}.tar.xz"
 
   update-docker:
     name: Update Docker Image
