@@ -94,10 +94,14 @@ jobs:
           tag_name='automation-4.0'
 
           cd thirdparty
-          # Pre-download lzo from the official mirror: fossies.org returns 410 Gone for this file
+          # Pre-download packages whose default mirror is blocked or gone on GH Actions runners:
+          #   lzo: fossies.org returns 410 Gone
+          #   libuuid: nchc.dl.sourceforge.net (TW mirror) is blocked from GH Actions
           mkdir -p src
           curl -fL "https://www.oberhumer.com/opensource/lzo/download/lzo-2.10.tar.gz" \
             -o src/lzo-2.10.tar.gz
+          curl -fL "https://downloads.sourceforge.net/project/libuuid/libuuid-1.0.3.tar.gz" \
+            -o src/libuuid-1.0.3.tar.gz
           sed '/# unpacking thirdpart archives/,$d' download-thirdparty.sh | bash -
 
           tar -zcvf doris-thirdparty-source.tgz src
@@ -264,10 +268,16 @@ jobs:
           export CMAKE_POLICY_VERSION_MINIMUM=3.10
           export CUSTOM_CMAKE="/usr/local/bin/cmake"
           cd thirdparty
-          # Fix empty lzo if the source tarball was created before fossies.org returned 410 Gone
+          # Fix packages that may be empty if the source tarball was built before the mirror fixes:
+          #   lzo: fossies.org returns 410 Gone
+          #   libuuid: nchc.dl.sourceforge.net (TW mirror) blocked from GH Actions
           if [[ ! -s src/lzo-2.10.tar.gz ]]; then
             curl -fL "https://www.oberhumer.com/opensource/lzo/download/lzo-2.10.tar.gz" \
               -o src/lzo-2.10.tar.gz
+          fi
+          if [[ ! -s src/libuuid-1.0.3.tar.gz ]]; then
+            curl -fL "https://downloads.sourceforge.net/project/libuuid/libuuid-1.0.3.tar.gz" \
+              -o src/libuuid-1.0.3.tar.gz
           fi
           ./build-thirdparty.sh -j "$(nproc)"
 
